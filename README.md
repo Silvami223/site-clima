@@ -104,5 +104,3 @@ const apiKey = 'SUA_CHAVE_AQUI';
 
 
 Feito com 💚 por [Michelle Bispo] https://github.com/Silvami223
-
-conversor-de-moedas
