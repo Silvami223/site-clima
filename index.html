@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ClimaTEIQ – Previsão Meteorológica</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    rel="stylesheet"
+  />
+
+ 
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+ 
+    body {
+      background: linear-gradient(135deg, #d9e8ff, #9eb7fa,#1e3a8a);
+      background-attachment: fixed;
+      transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out;
+    }
+
+   
+    #main-container {
+      position: relative;
+      z-index: 10;
+    }
+
+
+    input:focus,
+    button:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.6);
+    }
+  </style>
+</head>
+
+<body class="text-gray-900 dark:text-gray-100">
+
+  
+  <div
+    id="main-container"
+    class="max-w-4xl mx-auto mt-12 p-6 rounded-2xl shadow-2xl animate__animated animate__fadeIn bg-white dark:bg-gray-900 bg-opacity-90 dark:bg-opacity-80 backdrop-filter backdrop-blur-sm"
+  >
+
+    <header class="flex flex-col sm:flex-row justify-between items-center mb-8">
+      
+      <h1 class="text-4xl font-extrabold">ClimaTEIQ</h1>
+
+      <div class="flex items-center mt-4 sm:mt-0 space-x-4">
+        <div class="relative w-full sm:w-[240px]">
+          <input
+            id="cityInputTop"
+            type="text"
+            placeholder="Pesquisar por local"
+            class="w-full pl-4 pr-10 py-2 rounded-3xl bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-gray-100 transition-colors"
+            onkeypress="if(event.key==='Enter') getWeatherByCity(cityInputTop.value.trim())"
+          />
+          <i
+            class="lucide lucide-search absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 dark:text-gray-400 cursor-pointer"
+            data-lucide="search"
+            onclick="getWeatherByCity(cityInputTop.value.trim())"
+          ></i>
+        </div>
+        <button
+          id="btnCurrentLocation"
+          onclick="getWeatherByCurrentLocation()"
+          class="flex items-center space-x-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-full transition-colors"
+        >
+          <i data-lucide="map-pin" class="w-5 h-5"></i>
+          <span id="labelCurrentLocation">Minha localização</span>
+        </button>
+        <button
+          onclick="toggleDarkMode()"
+          class="p-2 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+        >
+          <i id="themeIcon" class="lucide" data-lucide="moon"></i>
+        </button>
+      </div>
+    </header>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <div id="weatherPanel" class="space-y-6 animate__animated animate__fadeInUp">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 id="cityName" class="text-3xl font-bold"></h2>
+            <p id="localTime" class="text-sm text-gray-500 dark:text-gray-400"></p>
+          </div>
+          <div class="flex items-center">
+            <img id="iconCurrent" src="" alt="Ícone do clima" class="w-20 h-20" />
+          </div>
+        </div>
+        <div class="flex items-center space-x-4">
+          <p class="text-6xl font-extrabold"><span id="temperatureCurrent"></span>°C</p>
+          <div>
+            <p id="descriptionCurrent" class="text-xl capitalize"></p>
+            <p id="feelsLikeCurrent" class="text-sm text-gray-500 dark:text-gray-400"></p>
+          </div>
+        </div>
+        <p id="summaryCurrent" class="text-gray-700 dark:text-gray-300 italic"></p>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="wind" class="w-5 h-5 text-blue-500"></i>
+            <span>Vento:</span>
+            <span id="windCurrent"></span> km/h
+          </div>
+          <div class="flex items-center space-x-2">
+            <i data-lucide="droplet" class="w-5 h-5 text-blue-400"></i>
+            <span>Umidade:</span>
+            <span id="humidityCurrent"></span>%
+          </div>
+          <div class="flex items-center space-x-2">
+            <i data-lucide="eye" class="w-5 h-5 text-green-500"></i>
+            <span>Visibilidade:</span>
+            <span id="visibilityCurrent"></span> km
+          </div>
+          <div class="flex items-center space-x-2">
+            <i data-lucide="gauge" class="w-5 h-5 text-pink-500"></i>
+            <span>Pressão:</span>
+            <span id="pressureCurrent"></span> mb
+          </div>
+          <div class="flex items-center space-x-2">
+            <i data-lucide="droplet" class="w-5 h-5 text-indigo-500"></i>
+            <span>Ponto de orvalho:</span>
+            <span id="dewPointCurrent"></span>°C
+          </div>
+          <div class="flex items-center space-x-2">
+            <i data-lucide="sun" class="w-5 h-5 text-yellow-500"></i>
+            <span>Qualidade do ar:</span>
+            <span id="airQualityIndex" class="font-semibold"></span>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="">
+      </div>
+    </div>
+    <div class="mt-8">
+      <nav class="flex space-x-2 overflow-x-auto text-sm font-medium text-gray-600 dark:text-gray-400">
+        <button
+          class="tab-button px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 whitespace-nowrap transition-colors"
+          data-tab="overview"
+        >
+          Visão Geral
+        </button>
+        <button
+          class="tab-button px-4 py-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 whitespace-nowrap transition-colors"
+          data-tab="hourly"
+        >
+          Por Hora
+        </button>
+        <button
+          class="tab-button px-4 py-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 whitespace-nowrap transition-colors"
+          data-tab="precipitation"
+        >
+          Precipitação
+        </button>
+        <button
+          class="tab-button px-4 py-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 whitespace-nowrap transition-colors"
+          data-tab="wind"
+        >
+          Vento
+        </button>
+        <button
+          class="tab-button px-4 py-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 whitespace-nowrap transition-colors"
+          data-tab="air-quality"
+        >
+          Qualidade do ar
+        </button>
+        <button
+          class="tab-button px-4 py-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 whitespace-nowrap transition-colors"
+          data-tab="humidity"
+        >
+          Umidade
+        </button>
+        <button
+          class="tab-button px-4 py-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 whitespace-nowrap transition-colors"
+          data-tab="clouds"
+        >
+          Nublado
+        </button>
+      </nav>
+
+      <div id="tabsContent" class="mt-6 space-y-6">
+
+        <div class="tab-content" data-content="overview">
+          <div class="flex space-x-4 overflow-x-auto pb-2">
+          </div>
+        </div>
+
+        <div class="tab-content hidden" data-content="hourly">
+          <p class="text-gray-600 dark:text-gray-400">
+            Previsão por hora está em construção. Em breve exibiremos um gráfico ou tabela com temperaturas a cada hora.
+          </p>
+        </div>
+
+        <div class="tab-content hidden" data-content="precipitation">
+          <p class="text-gray-600 dark:text-gray-400">
+            Precipitação por hora está em construção. Em breve exibiremos dados de chuva / probabilidade de chuva.
+          </p>
+        </div>
+
+        <div class="tab-content hidden" data-content="wind">
+          <p class="text-gray-600 dark:text-gray-400">
+            Dados de vento detalhados estarão aqui em breve (velocidade, direção por hora).
+          </p>
+        </div>
+
+        <div class="tab-content hidden" data-content="air-quality">
+          <p class="text-gray-600 dark:text-gray-400">
+            Dados de qualidade do ar por hora ou por dia estarão disponíveis em breve.
+          </p>
+        </div>
+
+        <div class="tab-content hidden" data-content="humidity">
+          <p class="text-gray-600 dark:text-gray-400">
+            Gráfico de umidade por hora em breve.
+          </p>
+        </div>
+
+        <div class="tab-content hidden" data-content="clouds">
+          <p class="text-gray-600 dark:text-gray-400">
+            Dados de cobertura de nuvens por hora ou dia em breve.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
